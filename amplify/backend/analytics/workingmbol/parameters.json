@@ -1,0 +1,21 @@
+{
+    "appName": "workingmbol",
+    "roleName": "pinpointLambdaRole178aac29",
+    "cloudformationPolicyName": "cloudformationPolicy178aac29",
+    "cloudWatchPolicyName": "cloudWatchPolicy178aac29",
+    "pinpointPolicyName": "pinpointPolicy178aac29",
+    "authPolicyName": "pinpoint_amplify_178aac29",
+    "unauthPolicyName": "pinpoint_amplify_178aac29",
+    "authRoleName": {
+        "Ref": "AuthRoleName"
+    },
+    "unauthRoleName": {
+        "Ref": "UnauthRoleName"
+    },
+    "authRoleArn": {
+        "Fn::GetAtt": [
+            "AuthRole",
+            "Arn"
+        ]
+    }
+}

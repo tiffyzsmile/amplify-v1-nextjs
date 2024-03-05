@@ -1,0 +1,186 @@
+enum CreationMethodType {
+  MANUAL
+  IMPORT
+}
+
+enum NodeTypeIdType {
+  person
+  doctor
+  organization
+  pharmacy
+  animal
+  pet
+  thing
+  insurance
+  medicalInsurance
+  petInsurance
+  homeInsurance
+  medicine
+  dose
+  insuranceCard
+  businessCard
+  file
+  document
+  image
+  mood
+  symptom
+  record
+}
+
+enum LineTypeIdType {
+  hasRelative
+  hasDoctor
+  hasInsurance
+  hasAllergy
+  hasMedicalCondition
+  hasMedicine
+  hasDailyMedicine
+  hasDose
+  hasDentist
+  hasOrganization
+  hasFile
+  hasDocument
+  hasImage
+  hasInsuranceCard
+  hasBusinessCard
+  hasRecord
+}
+
+enum ViewTypeIdType {
+  medical
+}
+
+enum ActiveStatusType {
+  archived
+  current
+}
+
+type EmailType {
+  emailType: String!
+  email: AWSEmail!
+}
+
+type PhoneType {
+  phoneType: String!
+  phone: AWSPhone!
+}
+
+type UrlType {
+  urlType: String!
+  url: AWSURL!
+}
+
+type StreetAddressType {
+  streetAddress1: String!
+  streetAddress2: String
+  city: String!
+  state: String!
+  zipCode: String!
+  country: String!
+}
+
+type AddressType {
+  addressType: String!
+  address: StreetAddressType!
+}
+
+type DisplayPropsType {
+  name: String!
+  meta: String
+}
+
+# Info on composite partition and sort keys -> https://aws.amazon.com/blogs/mobile/new-announcing-custom-primary-key-support-for-amplify-datastore/
+type Node @model @searchable @auth(rules: [{ allow: owner }]) {
+  id: ID! @primaryKey(sortKeyFields: ["userId"])
+  userId: ID! @index(name: "byNodeUserId")
+  nodeTypeId: NodeTypeIdType! @index(name: "byNodeType")
+  creationMethod: CreationMethodType
+  targetNodeId: ID @index(name: "byTargetNodeId")
+  TargetNode: Node @hasOne(fields: ["targetNodeId", "userId"])
+  IsTargetOfNode: [Node] @hasMany(indexName: "byTargetNodeId", fields: ["id"])
+  LinesFrom: [Line] @hasMany(indexName: "byFromNodeId", fields: ["id"])
+  LinesTo: [Line] @hasMany(indexName: "byToNodeId", fields: ["id"])
+  # Can be used on all types
+  activeStatus: ActiveStatusType
+  dateTime: AWSDateTime
+  startDate: AWSDateTime
+  endDate: AWSDateTime
+  identifier: String
+  amount: String
+  amountType: String
+  displayProps: DisplayPropsType!
+  defaultImageKey: String
+  s3Keys: [String]
+  name: String
+  descriptiveType: String # generic type field
+  description: String
+  notes: String
+  emails: [EmailType]
+  addresses: [AddressType]
+  phones: [PhoneType]
+  urls: [UrlType]
+  birthdate: AWSDateTime
+  firstName: String
+  middleName: String
+  lastName: String
+  jobTitle: String
+  frontImageS3Key: String
+  backImageS3Key: String
+
+  year: String
+  make: String
+  model: String
+}
+
+type Line @model @searchable @auth(rules: [{ allow: owner }]) {
+  id: ID! @primaryKey(sortKeyFields: ["userId"])
+  userId: ID! @index(name: "byLineUserId")
+  lineTypeId: LineTypeIdType! @index(name: "byLineType")
+  creationMethod: CreationMethodType
+  fromNodeId: ID! @index(name: "byFromNodeId")
+  toNodeId: ID! @index(name: "byToNodeId")
+  FromNode: Node @belongsTo(fields: ["fromNodeId", "userId"])
+  ToNode: Node @belongsTo(fields: ["toNodeId", "userId"])
+
+  # Can be used on all types
+  activeStatus: ActiveStatusType
+  startDate: AWSDateTime
+  endDate: AWSDateTime
+  displayProps: DisplayPropsType!
+  relationType: String # Generic for use on all
+}
+
+type View @model @auth(rules: [{ allow: owner }]) {
+  id: ID! @primaryKey(sortKeyFields: ["userId"])
+  userId: ID! @index(name: "byViewUserId")
+  viewTypeId: ViewTypeIdType! @index(name: "byViewType")
+
+  targetNodeId: ID @index(name: "byTargetNodeId")
+  TargetNode: Node @hasOne(fields: ["targetNodeId", "userId"])
+
+  # Can be used on all types
+  displayProps: DisplayPropsType!
+}
+
+enum FeedEventType {
+  createNode
+  updateNode
+  addLine
+  updateLine
+  deleteLine
+}
+
+type FeedEvent @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  userId: ID! @index(name: "byFeedEventUserId")
+  sourceNodeId: ID!
+    @index(
+      name: "feedEventsByDate"
+      queryField: "feedEventsByDate"
+      sortKeyFields: ["createdAt"]
+    )
+  createdAt: AWSDateTime!
+  eventType: FeedEventType
+  title: String
+  description: String
+}

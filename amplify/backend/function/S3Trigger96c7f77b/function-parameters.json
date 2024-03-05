@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "auth": {
+      "workingmbol6105cf64": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ]
+    },
+    "api": {
+      "workingmbol": [
+        "Query",
+        "Mutation"
+      ]
+    },
+    "storage": {
+      "Node:@model(appsync)": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ],
+      "Line:@model(appsync)": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ]
+    }
+  }
+}
