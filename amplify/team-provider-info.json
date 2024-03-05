@@ -10,6 +10,11 @@
       "StackName": "amplify-nextjs-staging-165335",
       "StackId": "arn:aws:cloudformation:us-west-2:233478385275:stack/amplify-nextjs-staging-165335/e87e6020-db10-11ee-8370-0282377e190d",
       "AmplifyAppId": "d13s1hcsh8697n"
+    },
+    "categories": {
+      "auth": {
+        "nextjsaf71e575": {}
+      }
     }
   }
 }
